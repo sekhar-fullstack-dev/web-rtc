@@ -1,23 +1,40 @@
-import logo from './logo.svg';
 import './App.css';
+import React, { useState, useEffect } from 'react';
+import { auth } from './utils/firebase-config';
+import Login from './components/Login';
+import Dashboard from './components/Dashboard';
+import VideoCall from './components/VideoCall';
 
 function App() {
+  const [user, setUser] = useState(null);
+  const [recipientId, setRecipientId] = useState(null);
+  const [isCaller, setIsCaller] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(currentUser => {
+      setUser(currentUser);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      {!user && <Login />}
+      {user && !recipientId && (
+        <Dashboard 
+          setRecipientId={setRecipientId} 
+          setIsCaller={setIsCaller} 
+          user={user} 
+        />
+      )}
+      {user && recipientId && (
+        <VideoCall 
+          user={user} 
+          recipientId={recipientId} 
+          isCaller={isCaller} 
+        />
+      )}
     </div>
   );
 }

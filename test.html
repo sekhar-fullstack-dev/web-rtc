@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebRTC Test</title>
+</head>
+<body>
+  <video id="localVideo" autoplay playsinline muted></video>
+  <script>
+    async function initMedia() {
+      try {
+        console.log('Requesting user media...');
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        console.log('User media obtained:', stream);
+        const videoElement = document.getElementById('localVideo');
+        videoElement.srcObject = stream;
+      } catch (err) {
+        console.error('Error accessing media devices:', err);
+        alert('Could not access your camera and/or microphone. Please check permissions and try again.');
+      }
+    }
+    initMedia();
+  </script>
+</body>
+</html>
