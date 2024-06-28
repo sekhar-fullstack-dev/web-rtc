@@ -42,10 +42,14 @@ const VideoCall = ({ user, recipientId, isCaller }) => {
   };
 
   return (
-    <div className="relative min-h-screen bg-gray-100">
+    <div className="relative min-h-screen bg-gray-100 flex items-center justify-center">
       {error && <div className="error-message">{error}</div>}
-      <video ref={remoteVideoRef} className="absolute inset-0 w-full h-full object-cover z-0" autoPlay></video>
-      <video ref={localVideoRef} className="absolute top-4 right-4 w-1/4 h-1/4 object-cover border border-white z-10" autoPlay muted></video>
+      <div className="relative w-full h-full flex items-center justify-center">
+        <video ref={remoteVideoRef} className="max-w-full h-full object-contain z-0" autoPlay></video>
+      </div>
+      <div className="absolute top-4 right-4 w-1/4 h-auto border-2 border-white z-10">
+        <video ref={localVideoRef} className="w-full h-auto object-cover" autoPlay muted></video>
+      </div>
       <button
         onClick={handleEndCall}
         className="absolute bottom-4 left-4 bg-red-500 text-white py-2 px-4 rounded z-10"
