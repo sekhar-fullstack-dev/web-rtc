@@ -2,7 +2,7 @@ import { useRef, useEffect } from 'react';
 import { firestore } from './firebase-config';
 import { doc, collection, getDocs,onSnapshot ,deleteDoc, addDoc, setDoc } from 'firebase/firestore';
 
-export const useWebRTC = (localVideoRef, remoteVideoRef, userId, recipientId) => {
+export const useWebRTC = (localVideoRef, remoteVideoRef, userId, recipientId, setRecipientId) => {
   const peerConnection = useRef(null);
   const localStream = useRef(null);
   const remoteStream = useRef(null);
@@ -108,10 +108,14 @@ export const useWebRTC = (localVideoRef, remoteVideoRef, userId, recipientId) =>
     console.log('Remote description set:', description);
 
     // Process any queued ICE candidates
-    iceCandidatesQueue.current.forEach(candidate => {
-      addIceCandidate(candidate);
-    });
-    iceCandidatesQueue.current = []; // Clear the queue after processing
+    if (iceCandidatesQueue.current) {
+      iceCandidatesQueue.current.forEach(candidate => {
+        addIceCandidate(candidate);
+      });
+      iceCandidatesQueue.current = []; // Clear the queue after processing
+    } else {
+      console.error('iceCandidatesQueue.current is null or undefined');
+    }
   };
 
   const addIceCandidate = async (candidate) => {
@@ -158,13 +162,37 @@ export const useWebRTC = (localVideoRef, remoteVideoRef, userId, recipientId) =>
 
   const cleanup = async () => {
     try {
-      console.log('Cleaning up Firestore collections...');
+      console.log('Cleaning up WebRTC connection and Firestore collections...');
+
+    // Close the peer connection
+    if (peerConnection.current) {
+      peerConnection.current.close();
+      peerConnection.current = null;
+      console.log('Peer connection closed');
+    }
+
+    // Stop all local media tracks
+    if (localStream.current) {
+      localStream.current.getTracks().forEach(track => track.stop());
+      localStream.current = null;
+      console.log('Local media tracks stopped');
+    }
+
+    // Clear the video elements
+    if (localVideoRef.current) {
+      localVideoRef.current.srcObject = null;
+    }
+    if (remoteVideoRef.current) {
+      remoteVideoRef.current.srcObject = null;
+    }
+
       await deleteDoc(doc(firestore, 'calls', userId));
       const candidateCollection = collection(firestore, 'calls', userId, 'candidates');
       const candidateDocs = await getDocs(candidateCollection);
       candidateDocs.forEach(async (doc) => {
         await deleteDoc(doc.ref);
       });
+      setRecipientId(null);
       console.log('Cleanup completed');
     } catch (err) {
       console.error('Error during cleanup:', err);

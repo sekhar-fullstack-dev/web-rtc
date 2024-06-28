@@ -32,6 +32,7 @@ function App() {
         <VideoCall 
           user={user} 
           recipientId={recipientId} 
+          setRecipientId={setRecipientId}
           isCaller={isCaller} 
         />
       )}

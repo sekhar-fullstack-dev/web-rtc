@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useWebRTC } from '../utils/WebRTCMsanager';
 // import './VideoCall.css'; // Import the CSS file
 
-const VideoCall = ({ user, recipientId, isCaller }) => {
+const VideoCall = ({ user, recipientId, setRecipientId, isCaller }) => {
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
   const {
@@ -14,7 +14,7 @@ const VideoCall = ({ user, recipientId, isCaller }) => {
     addIceCandidate,
     peerConnection,
     cleanup
-  } = useWebRTC(localVideoRef, remoteVideoRef, user.uid, recipientId);
+  } = useWebRTC(localVideoRef, remoteVideoRef, user.uid, recipientId,setRecipientId);
   const [error, setError] = useState(null);
 
   useEffect(() => {
